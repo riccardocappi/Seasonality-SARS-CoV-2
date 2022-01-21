@@ -35,6 +35,9 @@ nations = ["Argentina",
 # Carico i dati presi da https://ourworldindata.org/covid-cases aggiornati al 2021-12-24
 dati = pd.read_csv("./owid-covid-data.csv")
 all_distance = []
+peaks_dict = {}
+for nat in nations:
+    peaks_dict[nat] = []
 
 def convert_df(data, x, y, nation):
     df = data[data["location"] == nation]
@@ -104,7 +107,8 @@ for nat in nations:
     df = df.reset_index(drop=True)
     print(nat, ":")
     peaks = find_peaks(df)
-
+    for i in range(len(peaks)):
+        peaks_dict[nat].append(df['x'].values[peaks[i][0]])
     indexes = []
     if len(peaks) >= 2:
         indexes = find_max(peaks)
@@ -133,3 +137,9 @@ for nat in nations:
 
 print("Media delle distanze tra i due picchi massimi di tutte le nazioni: " , np.mean(all_distance))
 print("Varianza delle distanze tra i due picchi massimi di tutte le nazioni: " , np.var(all_distance))
+
+print("\n Lista di tutti i picchi individuati per ogni nazione:")
+
+for nat_peaks in peaks_dict:
+    print(nat_peaks+':')
+    print( np.datetime_as_string(peaks_dict[nat_peaks], unit = 'D'))
