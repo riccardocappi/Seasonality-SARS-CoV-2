@@ -32,6 +32,7 @@ nations = ["Argentina",
 "Denmark",
 "Austria",
 "Morocco"]
+nations.sort()
 # Carico i dati presi da https://ourworldindata.org/covid-cases aggiornati al 2021-12-24
 dati = pd.read_csv("./owid-covid-data.csv")
 all_distance = []
@@ -59,7 +60,7 @@ def check_real_peak(wave_period, candidate_peak):
     return True
 
 
-def find_peaks(df):
+def find_peaks(df,nat):
     relevant_peaks = []
     check_length = 28
     y = df["y"].values
@@ -71,6 +72,7 @@ def find_peaks(df):
                 threshold = np.mean(y[:i]) * 84 / 100
                 if y[i] > threshold:
                     relevant_peaks.append( (i,y[i]) )
+                    peaks_dict[nat].append(df['x'].values[i])
                 i += check_length
         i += 1
     return relevant_peaks
@@ -106,16 +108,17 @@ for nat in nations:
     df = convert_df(dati, "date", "new_cases", nat)
     df = df.reset_index(drop=True)
     print(nat, ":")
-    peaks = find_peaks(df)
-    for i in range(len(peaks)):
-        peaks_dict[nat].append(df['x'].values[peaks[i][0]])
+    peaks = find_peaks(df,nat)
+    print('Number of peaks','->',len(peaks))
     indexes = []
     if len(peaks) >= 2:
         indexes = find_max(peaks)
         first_peak_date = df["x"][indexes[0]]
         second_peak_date = df["x"][indexes[1]]
         output(first_peak_date,second_peak_date)
-        print()
+
+    print(np.datetime_as_string(peaks_dict[nat], unit='D'))
+    print()
 
     df.x = df.x.dt.strftime("%Y/%m/%d")
     df.plot(
@@ -138,8 +141,3 @@ for nat in nations:
 print("Media delle distanze tra i due picchi massimi di tutte le nazioni: " , np.mean(all_distance))
 print("Varianza delle distanze tra i due picchi massimi di tutte le nazioni: " , np.var(all_distance))
 
-print("\n Lista di tutti i picchi individuati per ogni nazione:")
-
-for nat_peaks in peaks_dict:
-    print(nat_peaks+':')
-    print( np.datetime_as_string(peaks_dict[nat_peaks], unit = 'D'))
