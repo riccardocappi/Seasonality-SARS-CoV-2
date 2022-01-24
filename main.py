@@ -140,4 +140,5 @@ for nat in nations:
 
 print("Media delle distanze tra i due picchi massimi di tutte le nazioni: " , np.mean(all_distance))
 print("Varianza delle distanze tra i due picchi massimi di tutte le nazioni: " , np.var(all_distance))
+print("SD delle distanze tra i due picchi massimi di tutte le nazioni: " , np.std(all_distance))
 
