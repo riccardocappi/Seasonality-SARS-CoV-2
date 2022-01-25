@@ -32,10 +32,13 @@ nations = ["Argentina",
 "Denmark",
 "Austria",
 "Morocco"]
+
+#European nations
+# nations = ['Austria', 'Belgium', 'Croatia', 'Denmark', 'France', 'Germany', 'Hungary', 'Italy', 'Norway', 'Portugal', 'Spain', 'Sweden','United Kingdom']
 nations.sort()
-# Carico i dati presi da https://ourworldindata.org/covid-cases aggiornati al 2021-12-24
-dati = pd.read_csv("./owid-covid-data.csv")
-all_distance = []
+# Upload the data taken from https://ourworldindata.org/covid-cases updated to 2021-12-24
+dataset = pd.read_csv("./owid-covid-data.csv")
+all_distances = []
 peaks_dict = {}
 for nat in nations:
     peaks_dict[nat] = []
@@ -47,7 +50,7 @@ def convert_df(data, x, y, nation):
     filtered_data = pd.concat(df, axis=1, keys=headers)
     filtered_data.x = pd.to_datetime(filtered_data.x)
     filtered_data = filtered_data.sort_values("x")
-    # Sostituisco i dati di tipo NaN con il valore 0.0
+    # replacing NaN data with the value 0.0
     filtered_data["y"] = filtered_data["y"].fillna(0.0)
     filtered_data["y"] = filtered_data["y"].rolling(7).mean()
     filtered_data["y"] = filtered_data["y"].fillna(0.0)
@@ -83,8 +86,8 @@ def output(first_peak, second_peak):
     second_peak = second_peak.strftime("%Y/%m/%d")
     first_peak = first_peak.strftime("%Y/%m/%d")
     n_days = distance.days
-    all_distance.append(n_days)
-    print("Primo picco : " + str(first_peak), "\t", "Secondo picco: " + str(second_peak), "\t", "Distanza in giorni: " + str(n_days))
+    all_distances.append(n_days)
+    print("First highest peak : " + str(first_peak), "\t", "Second highest peak: " + str(second_peak), "\t", "Distance in days: " + str(n_days))
 
 def find_max(list_of_peaks):
     first_max = 0
@@ -105,7 +108,7 @@ def find_max(list_of_peaks):
     return res
 
 for nat in nations:
-    df = convert_df(dati, "date", "new_cases", nat)
+    df = convert_df(dataset, "date", "new_cases", nat)
     df = df.reset_index(drop=True)
     print(nat, ":")
     peaks = find_peaks(df,nat)
@@ -138,7 +141,7 @@ for nat in nations:
     plt.tight_layout()
     plt.show()
 
-print("Media delle distanze tra i due picchi massimi di tutte le nazioni: " , np.mean(all_distance))
-print("Varianza delle distanze tra i due picchi massimi di tutte le nazioni: " , np.var(all_distance))
-print("SD delle distanze tra i due picchi massimi di tutte le nazioni: " , np.std(all_distance))
+print("Average of the distances between the two highest peaks of all nations: ", np.mean(all_distances))
+print("Variance of the distances between the two highest peaks of all nations: ", np.var(all_distances))
+print("Standard deviation of the distances between the two highest peaks of all nations: ", np.std(all_distances))
 
